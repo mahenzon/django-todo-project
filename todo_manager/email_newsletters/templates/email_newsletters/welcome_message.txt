@@ -1,0 +1,6 @@
+Hello, {{ name }}!
+
+We're so glad to see you!
+
+Thanks,
+Goodbye.
