@@ -5,9 +5,9 @@ from . import views
 app_name = "todo_list"
 
 urlpatterns = [
-    # path("", views.index_view, name="index"),
     # path("", views.ToDoListIndexView.as_view(), name="index"),
     path("", views.ToDoListIndexView.as_view(), name="index"),
+    # path("old-index/", views.index_view, name="index"),
     path("<int:pk>/", views.ToDoDetailView.as_view(), name="detail"),
     path("<int:pk>/update/", views.ToDoItemUpdateView.as_view(), name="update"),
     path("<int:pk>/confirm-delete/", views.ToDoItemDeleteView.as_view(), name="delete"),
