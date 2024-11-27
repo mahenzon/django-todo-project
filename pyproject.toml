@@ -5,3 +5,4 @@ package-mode = false
 python = "^3.12"
 django = "^5.1"
 django-debug-toolbar = "^4.4.6"
+psycopg = "^3.2.3"

@@ -12,3 +12,24 @@ services:
       driver: "json-file"
       options:
         max-size: "1m"
+
+  pg:
+    image: postgres:16.4
+    environment:
+      POSTGRES_DB: todo_manager
+      POSTGRES_USER: web_app
+      POSTGRES_PASSWORD: supersecretpassword
+      PGDATA: /var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+
+volumes:
+  pgdata:

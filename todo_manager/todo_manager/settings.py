@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
-
+from os import getenv
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -84,10 +84,30 @@ WSGI_APPLICATION = "todo_manager.wsgi.application"
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
+    # "default": {
+    #     "ENGINE": "django.db.backends.sqlite3",
+    #     "NAME": BASE_DIR / "db.sqlite3",
+    # },
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
+        "ENGINE": "django.db.backends.postgresql",
+        # 1
+        # "NAME": "todo_manager",
+        # "USER": "web_app",
+        # "PASSWORD": "supersecretpassword",
+        # "HOST": "localhost",
+        # "PORT": 5432,
+        # 2
+        "NAME": getenv("DB_NAME", "todo_manager"),
+        "USER": getenv("DB_USER", "web_app"),
+        "PASSWORD": getenv("DB_PASSWORD", "supersecretpassword"),
+        "HOST": getenv("DB_HOST", "localhost"),
+        "PORT": getenv("DB_PORT", 5432),
+        # 3
+        # "OPTIONS": {
+        #     "service": "todo_manager_service",
+        #     "passfile": BASE_DIR.parent / ".todo_manager_pgpass",
+        # },
+    },
 }
 
 
