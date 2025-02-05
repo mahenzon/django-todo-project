@@ -1,0 +1,5 @@
+Dear Admin,
+
+ToDo #{{ todo.id }} with title "{{ todo.title }}" was archived.
+
+Check at admin: {{ host }}{% url 'admin:todo_list_todoitem_change' todo.id %}
