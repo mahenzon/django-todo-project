@@ -22,6 +22,8 @@ from .forms import (
 )
 from .models import ToDoItem
 
+from .tasks import notify_admin_todo_archived
+
 
 def index_view(request: HttpRequest) -> HttpResponse:
     todo_items = ToDoItem.objects.all()[:3]
@@ -80,10 +82,13 @@ class ToDoItemDeleteView(DeleteView):
     model = ToDoItem
     success_url = reverse_lazy("todo_list:list")
 
+    @transaction.atomic
     def form_valid(self, form):
         success_url = self.get_success_url()
         self.object.archived = True
         self.object.save()
+        # notify_admin_todo_archived.delay(todo_id=self.object.pk)
+        notify_admin_todo_archived.delay_on_commit(todo_id=self.object.pk)
         return HttpResponseRedirect(success_url)
 
 
