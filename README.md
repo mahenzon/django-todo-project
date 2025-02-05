@@ -11,3 +11,9 @@ CBV
 - https://github.com/maildev/maildev
 - https://www.usebruno.com/
 - https://docs.djangoproject.com/en/5.1/topics/email/
+
+
+
+```shell
+celery --app todo_manager worker --pool threads --loglevel INFO
+```
