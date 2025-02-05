@@ -14,4 +14,5 @@ urlpatterns = [
     path("list/", views.ToDoListView.as_view(), name="list"),
     path("done/", views.ToDoListDoneView.as_view(), name="done"),
     path("create/", views.ToDoItemCreateView.as_view(), name="create"),
+    path("task-status/", views.task_status, name="task_status"),
 ]

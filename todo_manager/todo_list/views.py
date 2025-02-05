@@ -1,3 +1,6 @@
+from celery import current_app
+from celery.result import AsyncResult
+from django.db import transaction
 from django.http import (
     HttpRequest,
     HttpResponse,
@@ -82,3 +85,22 @@ class ToDoItemDeleteView(DeleteView):
         self.object.archived = True
         self.object.save()
         return HttpResponseRedirect(success_url)
+
+
+def task_status(request: HttpRequest) -> HttpResponse:
+    task_id = request.GET.get("task_id") or ""
+    context = {"task_id": task_id}
+    result = AsyncResult(
+        task_id,
+        app=current_app,
+    )
+    context.update(
+        status=result.status,
+        ready=result.ready,
+        result=result.result,
+    )
+    return render(
+        request,
+        template_name="todo_list/task-status.html",
+        context=context,
+    )
