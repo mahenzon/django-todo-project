@@ -1,5 +1,11 @@
 from celery import current_app
 from celery.result import AsyncResult
+from django.contrib.postgres.search import (
+    SearchVector,
+    SearchRank,
+    SearchQuery,
+    TrigramSimilarity,
+)
 from django.db import transaction
 from django.http import (
     HttpRequest,
@@ -15,10 +21,12 @@ from django.views.generic import (
     UpdateView,
     DeleteView,
 )
+from django.db import models
 
 from .forms import (
     ToDoItemCreateForm,
     ToDoItemUpdateForm,
+    ToDoItemSearchForm,
 )
 from .models import ToDoItem
 
@@ -40,8 +48,87 @@ class ToDoListIndexView(ListView):
 
 
 class ToDoListView(ListView):
+
+    TITLE_WEIGHT = 0.7
+    DESCRIPTION_WEIGHT = 0.5
+
     # model = ToDoItem
     queryset = ToDoItem.objects.active()
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+        context.update(
+            form=ToDoItemSearchForm(self.request.GET),
+        )
+        return context
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        if search := self.request.GET.get("search"):
+            # example 0
+            # qs = qs.filter(
+            #     models.Q(title__search=search) | models.Q(description__search=search),
+            # )
+
+            # example 1
+            # qs = qs.annotate(
+            #     search=SearchVector("title", "description"),
+            # ).filter(
+            #     search=search,
+            # )
+
+            # example 2
+            # search_vector = SearchVector("title", "description")
+            # search_query = SearchQuery(search)
+            # qs = (
+            #     qs.annotate(
+            #         search=search_vector,
+            #         rank=SearchRank(search_vector, search_query),
+            #     )
+            #     .filter(
+            #         search=search_query,
+            #     )
+            #     .order_by("-rank", "pk")
+            # )
+
+            # example 3
+            # qs = (
+            #     qs.annotate(
+            #         similarity=TrigramSimilarity("title", search),
+            #     )
+            #     .filter(
+            #         similarity__gt=0.1,
+            #     )
+            #     .order_by("-similarity", "pk")
+            # )
+
+            # example 4
+            qs = (
+                qs.annotate(
+                    title_similarity=TrigramSimilarity(
+                        "title",
+                        search,
+                    ),
+                    description_similarity=TrigramSimilarity(
+                        "description",
+                        search,
+                    ),
+                    combined_similarity=(
+                        (models.F("title_similarity") * self.TITLE_WEIGHT)
+                        + (models.F("description_similarity") * self.DESCRIPTION_WEIGHT)
+                    ),
+                )
+                .filter(
+                    combined_similarity__gt=0.05,
+                )
+                .order_by(
+                    "-combined_similarity",
+                    "-title_similarity",
+                    "-description_similarity",
+                    "pk",
+                )
+            )
+        return qs
 
 
 class ToDoListDoneView(ListView):
