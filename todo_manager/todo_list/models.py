@@ -2,6 +2,15 @@ from django.db import models
 from django.urls import reverse
 
 
+class ToDoItemQuerySet(models.QuerySet):
+
+    def active(self):
+        return self.filter(archived=False)
+
+    def done(self):
+        return self.filter(done=True)
+
+
 class ToDoItem(models.Model):
 
     class Meta:
@@ -13,6 +22,8 @@ class ToDoItem(models.Model):
     done = models.BooleanField(default=False)
     archived = models.BooleanField(default=False)
 
+    objects = ToDoItemQuerySet.as_manager()
+
     def get_absolute_url(self):
         return reverse(
             "todo_list:detail",
@@ -21,3 +32,4 @@ class ToDoItem(models.Model):
 
     def __str__(self):
         return self.title
+

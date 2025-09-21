@@ -36,24 +36,21 @@ def index_view(request: HttpRequest) -> HttpResponse:
 
 class ToDoListIndexView(ListView):
     template_name = "todo_list/index.html"
-    # TODO: custom qs, archived
-    queryset = ToDoItem.objects.all()[:3]
+    queryset = ToDoItem.objects.active()[:3]
 
 
 class ToDoListView(ListView):
     # model = ToDoItem
-    queryset = ToDoItem.objects.filter(archived=False)
+    queryset = ToDoItem.objects.active()
 
 
 class ToDoListDoneView(ListView):
-    # TODO: archived qs
-    queryset = ToDoItem.objects.filter(done=True).all()
+    queryset = ToDoItem.objects.active().done()
 
 
 class ToDoDetailView(DetailView):
     # model = ToDoItem
-    # TODO: archived qs
-    queryset = ToDoItem.objects.filter(archived=False)
+    queryset = ToDoItem.objects.active()
 
 
 class ToDoItemCreateView(CreateView):
@@ -79,7 +76,8 @@ class ToDoItemUpdateView(UpdateView):
 
 
 class ToDoItemDeleteView(DeleteView):
-    model = ToDoItem
+    # model = ToDoItem
+    queryset = ToDoItem.objects.active()
     success_url = reverse_lazy("todo_list:list")
 
     @transaction.atomic
@@ -88,7 +86,7 @@ class ToDoItemDeleteView(DeleteView):
         self.object.archived = True
         self.object.save()
         # notify_admin_todo_archived.delay(todo_id=self.object.pk)
-        notify_admin_todo_archived.delay_on_commit(todo_id=self.object.pk)
+        # notify_admin_todo_archived.delay_on_commit(todo_id=self.object.pk)
         return HttpResponseRedirect(success_url)
 
 
