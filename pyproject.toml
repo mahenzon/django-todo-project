@@ -8,3 +8,6 @@ django-debug-toolbar = "^4.4.6"
 psycopg = "^3.2.3"
 celery = "^5.4.0"
 django-celery-results = "^2.5.1"
+
+[tool.poetry.group.dev.dependencies]
+psycopg = {extras = ["binary"], version = "^3.2.10"}
